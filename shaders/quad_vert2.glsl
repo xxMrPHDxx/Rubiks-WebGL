@@ -1,12 +1,13 @@
-attribute vec3 a_pos;
+#version 300 es
+in vec3 a_pos;
 
 uniform mat4 u_viewMatrix;
 uniform mat4 u_camMatrix;
 uniform mat4 u_objMatrix;
 uniform vec4 u_color;
 
-varying vec4 v_color;
-varying float v_dist;
+out vec4 v_color;
+out float v_dist;
 
 void main(){
   v_color = u_color;

@@ -4,7 +4,10 @@ import Rubiks from './js/rubiks.js';
 const canvas = document.querySelector('canvas#screen');
 canvas.setAttribute('width', window.WIDTH = innerWidth);
 canvas.setAttribute('height', window.HEIGHT = innerHeight);
-const gl = canvas.getContext('webgl2');
+const gl2 = canvas.getContext('webgl2');
+const gl = gl2 === null ? 
+						canvas.getContext('webgl') :
+						gl2;
 const FPS = 30;
 const msPerTick = 1000/FPS;
 
@@ -18,8 +21,14 @@ async function setup(){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  shader = await Shader.loadFromFile(gl, 'shaders/quad_vert.glsl', 'shaders/quad_frag.glsl');
-  rubiks = new Rubiks(gl, shader, 10);
+	const v = gl2 === null ? '' : '2';
+
+  shader = await Shader.loadFromFile(
+		gl, 
+		`shaders/quad_vert${v}.glsl`, 
+		`shaders/quad_frag${v}.glsl`
+	);
+  rubiks = new Rubiks(gl, shader, 5);
 }
 
 let tick = 0;
