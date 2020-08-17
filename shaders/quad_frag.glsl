@@ -7,5 +7,5 @@ in float v_dist;
 out vec4 finalColor;
 
 void main(){
-  finalColor = v_color/(v_dist*0.08+1.0);
+  finalColor = vec4(v_color.xyz/(v_dist*0.1+1.0), 1.0);
 }
