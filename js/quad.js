@@ -51,16 +51,29 @@ export default class Quad {
     this.gl.uniformMatrix4fv(this.loc.u_cam, false, camMatrix);
     this.shader.unuse();
   }
-  draw(pos, angle, size, color=[1.0,1.0,1.0,1.0]){
+  draw(pos, cube_angle, angle, size, color=[1.0,1.0,1.0,1.0], flag=0){
     const gl = this.gl;
+    const [x, y, z]     = [pos.x-size/2, pos.y-size/2, pos.z-size/2];
+    const [l,r,u,d,f,b] = [0,1,2,3,4,5].map(s=>(flag&(1<<s))>>s);
+    const [my, mz, mx]  = [!(l||r), !(u||d), !(f||b)];
     this.shader.use();
 
     // Set the object transform
-    const objMatrix = mat4.identity()
-      .translate(pos.x-size/2, pos.y-size/2, pos.z-1)
+    let objMatrix = mat4.identity();
+
+    // Rotation for move execution, perhaps?
+    objMatrix = objMatrix.translate(-size/2, -size/2, -size/2);
+    if(cube_angle.x > 0 && (l || my || r)) objMatrix = objMatrix.rotateX(cube_angle.x);
+    if(cube_angle.y > 0 && (u || mz || d)) objMatrix = objMatrix.rotateY(cube_angle.y);
+    if(cube_angle.z > 0 && (f || mx || b)) objMatrix = objMatrix.rotateZ(cube_angle.z);
+    objMatrix = objMatrix.translate(size/2, size/2, size/2);
+
+    // Face and quad rotation
+    objMatrix = objMatrix
+      .translate(x+0.5, y+0.5, z+0.5)
       .rotateX(toRad(angle.x)).rotateY(toRad(angle.y)).rotateZ(toRad(angle.z))
       .scale(size*0.99, size*0.99, size*0.99);
-  
+
     // Set the uniforms data
     gl.uniformMatrix4fv(this.loc.u_obj, false, objMatrix);
     gl.uniform4f(this.loc.u_col, ...color);

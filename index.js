@@ -17,6 +17,9 @@ const projMatrix = mat4.perspective(90, WIDTH/HEIGHT, 0.01, 500.0);
 
 let shader, rubiks;
 
+// TODO: This is just a test, lol
+let up;
+
 async function setup(){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
@@ -29,12 +32,26 @@ async function setup(){
 		`shaders/quad_vert${v}.glsl`, 
 		`shaders/quad_frag${v}.glsl`
 	);
-  rubiks = new Rubiks(gl, shader, 5);
+  rubiks = new Rubiks(gl, shader, 3);
+
+  // TODO: Testing purposes, lol
+  up = [];
+  for(let i=0,x=0;x<3;x++)
+  for(let y=0;y<3;y++)
+  for(let z=0;z<3;z++){
+    if(x>0&&x<2&&y>0&&y<2&&z>0&&z<2) continue;
+    if(y === 0) up.push(rubiks.cubes[i]);
+    i++;
+  }
 }
 
-let tick = 0;
+let tick = 0, angle;
 function update(){
   tick++;
+  angle = (tick%500)*2*Math.PI/500;
+
+  for(const cube of up) cube.angle.y = angle;
+
   document.querySelector('#FPS').innerText = `${window.fps || 0} fps`;
 }
 
@@ -43,11 +60,10 @@ function draw(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.clearColor(51/255, 51/255, 51/255, 1.0);
 
-  const angle = (Date.now()%10000)*2*Math.PI/10000;
   const viewMatrix = _viewMatrix
-    .translate(0, 0, 16)
-    .rotateX(-Math.PI/4)
-    .rotateY(angle);
+    .translate(0, 0, 4)
+    .rotateX(-Math.PI/6)
+    .rotateY(-Math.PI/4);
 
   rubiks.setCamera(projMatrix, viewMatrix);
   rubiks.draw();
