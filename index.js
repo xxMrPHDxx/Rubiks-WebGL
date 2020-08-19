@@ -17,9 +17,10 @@ let shader, rubiks;
 async function setup(){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
+  gl.frontFace(gl.CW);
 
-  shader = await Shader.loadFromFile(gl, 'shaders/quad_vert.glsl', 'shaders/quad_frag.glsl');
-  rubiks = new Rubiks(gl, shader, 10);
+  window.shader = shader = await Shader.loadFromFile(gl, 'shaders/quad_vert.glsl', 'shaders/quad_frag.glsl');
+  rubiks = new Rubiks(gl, shader, 20);
 }
 
 let tick = 0;
@@ -36,7 +37,6 @@ function draw(){
   const angle = (Date.now()%10000)*2*Math.PI/10000;
   const viewMatrix = _viewMatrix
     .translate(0, 0, 16)
-    // .translate(0, 0, Math.sin(angle)*2+2)
     .rotateX(-Math.PI/4)
     .rotateY(angle);
 
@@ -45,23 +45,32 @@ function draw(){
 }
 
 let lastTime=performance.now(), unprocessedTime = 0, ticks = 0, frames = 0;
+let lastTimer=performance.now();
 function animate(time=0){
   const now = performance.now();
   unprocessedTime += (now - lastTime) / msPerTick;
   lastTime = now;
+  let shouldRender = false;
   while(unprocessedTime >= 1){
     update();
     unprocessedTime--;
     ticks++;
-    if(ticks == 60){
-      window.fps = frames;
-      ticks = frames = 0;
-    }
+    shouldRender = true;
   }
-  draw();
-  frames++;
-  setTimeout(animate, 1000/FPS);
-  // requestAnimationFrame(animate);
+
+  if(shouldRender){
+    draw();
+    frames++;
+  }
+
+  const timer = performance.now();
+  if(timer - lastTimer >= 1000){
+    window.fps = frames;
+    ticks = frames = 0;
+    lastTimer += 1000;
+  }
+
+  requestAnimationFrame(animate);
 }
 
 Promise.resolve(setup()).then(animate);

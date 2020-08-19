@@ -36,7 +36,7 @@ export default class Quad {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     // Set up buffer for vertex indices
-    const arrIdxs = new Int16Array([0,1,2,0,2,3,  0,2,1,0,3,2]);
+    const arrIdxs = new Int16Array([0,1,2,0,2,3]);
     this.bufIdxs = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdxs);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, arrIdxs, gl.STATIC_DRAW);
@@ -58,7 +58,6 @@ export default class Quad {
     // Set the object transform
     const objMatrix = mat4.identity()
       .translate(pos.x-size/2, pos.y-size/2, pos.z-1)
-      // .translate(pos.x, pos.y, pos.z)
       .rotateX(toRad(angle.x)).rotateY(toRad(angle.y)).rotateZ(toRad(angle.z))
       .scale(size*0.99, size*0.99, size*0.99);
   
@@ -71,7 +70,7 @@ export default class Quad {
     gl.enableVertexAttribArray(this.loc.a_pos);
     gl.vertexAttribPointer(this.loc.a_pos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdxs);
-    gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
     this.shader.unuse();
   }
