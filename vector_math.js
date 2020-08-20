@@ -14,6 +14,10 @@ class vec3 extends Float32Array {
     const [x, y, z] = rhs;
     return new vec3(this.x+x, this.y+y, this.z+z);
   }
+  mag(){
+    const [x, y, z] = [...this];
+    return Math.sqrt(x*x + y*y + z*z);
+  }
 }
 
 class vec4 extends Float32Array {
