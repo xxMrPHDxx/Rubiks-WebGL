@@ -1,5 +1,6 @@
 import Shader from './js/shader.js';
 import Rubiks from './js/rubiks.js';
+import Move, { Axis } from './js/move.js';
 
 const canvas = document.querySelector('canvas#screen');
 canvas.setAttribute('width', window.WIDTH = innerWidth);
@@ -18,7 +19,7 @@ const projMatrix = mat4.perspective(90, WIDTH/HEIGHT, 0.01, 500.0);
 let shader, rubiks;
 
 // TODO: This is just a test, lol
-let up;
+let up, move_U, move_Ur;
 
 async function setup(){
   gl.enable(gl.DEPTH_TEST);
@@ -43,6 +44,19 @@ async function setup(){
     if(y === 0) up.push(rubiks.cubes[i]);
     i++;
   }
+  move_U  = new Move(Axis.Y,  1, up);
+  move_Ur = new Move(Axis.Y, -1, up);
+}
+
+const keys = {};
+function onKeyPressed(key, code){
+  if(code >= 256) return;
+  console.log(key, code);
+  keys[key] = true;
+}
+function onKeyReleased(key, code){
+  if(code >= 256) return;
+  keys[key] = false;
 }
 
 let tick = 0, angle;
@@ -50,7 +64,8 @@ function update(){
   tick++;
   angle = (tick%500)*2*Math.PI/500;
 
-  for(const cube of up) cube.angle.y = angle;
+  if(keys['u']) move_U.start();
+  move_U.update();
 
   document.querySelector('#FPS').innerText = `${window.fps || 0} fps`;
 }
@@ -97,5 +112,9 @@ function animate(time=0){
 
   requestAnimationFrame(animate);
 }
+
+function onKeyEvent(callback){ return e => callback(e.key, e.keyCode); }
+window.onkeyup   = onKeyEvent(onKeyReleased);
+window.onkeydown = onKeyEvent(onKeyPressed);
 
 Promise.resolve(setup()).then(animate);
